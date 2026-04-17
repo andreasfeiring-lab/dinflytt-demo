@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adminportal — Flytta Smart × DinFlytt</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --yellow:   #F5C800;
+  --yellow-d: #C9A200;
+  --yellow-l: #FFF9DC;
+  --black:    #1A1A1A;
+  --gray-d:   #3D3D3D;
+  --gray-m:   #6B6B6B;
+  --gray-l:   #F4F4F2;
+  --gray-b:   #E8E8E5;
+  --white:    #FFFFFF;
+  --green:    #22A06B;
+  --green-l:  #F0FBF5;
+  --orange:   #D97706;
+  --orange-l: #FEF3C7;
+  --radius:   10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #F0EFE9;
+  min-height: 100vh;
+  color: var(--black);
+}
+
+/* ── Top nav ── */
+.topnav {
+  background: var(--black);
+  border-bottom: 3px solid var(--yellow);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+  height: 54px;
+}
+.logo-mark {
+  background: var(--yellow); border-radius: 6px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: var(--black);
+}
+.logo-text { font-size: 15px; font-weight: 700; color: var(--white); }
+.logo-sub  { font-size: 11px; color: #888; margin-left: 4px; }
+.nav-badge {
+  margin-left: auto; background: var(--yellow); color: var(--black);
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+}
+.nav-byrå  { font-size: 12px; color: #AAA; }
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 54px);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--gray-b);
+  padding: 20px 0;
+}
+.sidebar-section {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--gray-m);
+  padding: 14px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; font-size: 13px; cursor: pointer;
+  color: var(--gray-d); border-left: 3px solid transparent;
+  transition: all .1s;
+}
+.nav-item:hover  { background: var(--gray-l); }
+.nav-item.active {
+  background: var(--yellow-l); color: var(--black);
+  border-left-color: var(--yellow); font-weight: 600;
+}
+.nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+
+/* ── Main ── */
+.main { padding: 24px; overflow-y: auto; }
+
+/* ── Page title ── */
+.page-title {
+  font-size: 20px; font-weight: 700; margin-bottom: 4px;
+}
+.page-sub { font-size: 13px; color: var(--gray-m); margin-bottom: 20px; }
+
+/* ── Stat cards ── */
+.stat-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--gray-b); padding: 16px;
+}
+.stat-label { font-size: 11px; color: var(--gray-m); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; }
+.stat-sub   { font-size: 11px; color: var(--gray-m); margin-top: 3px; }
+.stat-up    { color: var(--green); }
+.stat-warn  { color: var(--orange); }
+
+/* ── Cards ── */
+.card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--gray-b); margin-bottom: 16px; overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--gray-b);
+  display: flex; align-items: center; gap: 10px;
+  background: var(--gray-l);
+}
+.card-title { font-size: 14px; font-weight: 600; }
+.card-sub   { font-size: 12px; color: var(--gray-m); margin-top: 1px; }
+.card-body  { padding: 16px 18px; }
+
+/* ── Grid 2 ── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── Price table ── */
+.price-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.price-table th {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--gray-m);
+  text-align: left; padding: 0 8px 8px 0; border-bottom: 1px solid var(--gray-b);
+}
+.price-table td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--gray-b); vertical-align: middle; }
+.price-table tr:last-child td { border-bottom: none; }
+.price-table td:last-child { text-align: right; }
+.price-table input[type=number] {
+  width: 100px; padding: 6px 8px; border: 1.5px solid var(--gray-b);
+  border-radius: 6px; font-size: 13px; font-family: inherit;
+  text-align: right; background: var(--white); color: var(--black);
+  outline: none; transition: border-color .15s;
+}
+.price-table input[type=number]:focus { border-color: var(--yellow); }
+.row-label { font-weight: 500; font-size: 13px; }
+.row-sub   { font-size: 11px; color: var(--gray-m); }
+
+/* ── Bench cards ── */
+.bench-card {
+  background: var(--gray-l); border-radius: 8px; padding: 11px 14px;
+  margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
+}
+.bench-label { font-size: 13px; color: var(--gray-m); }
+.bench-val   { font-size: 15px; font-weight: 600; }
+.bench-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; }
+.above { background: var(--orange-l); color: var(--orange); }
+.below { background: var(--green-l);  color: var(--green);  }
+
+/* ── Lead table ── */
+.lead-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lead-table th {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--gray-m);
+  text-align: left; padding: 0 8px 10px; border-bottom: 1px solid var(--gray-b);
+}
+.lead-table td { padding: 10px 8px; border-bottom: 1px solid var(--gray-b); }
+.lead-table tr:last-child td { border-bottom: none; }
+.lead-table tr:hover td { background: var(--gray-l); }
+.status-pill {
+  font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500;
+}
+.status-new  { background: var(--yellow-l); color: var(--black); }
+.status-done { background: var(--green-l);  color: var(--green); }
+.status-miss { background: #FEE2E2; color: #DC2626; }
+
+/* ── Chart bars ── */
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin: 8px 0 4px; }
+.bar-wrap  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar       { width: 100%; background: var(--yellow); border-radius: 4px 4px 0 0; transition: height .3s; }
+.bar-label { font-size: 10px; color: var(--gray-m); }
+
+/* ── Embed box ── */
+.embed-box {
+  background: var(--black); border-radius: 8px; padding: 14px 16px;
+  font-family: "SF Mono", "Fira Code", monospace; font-size: 12px;
+  color: var(--yellow); margin-bottom: 10px; word-break: break-all;
+  line-height: 1.6;
+}
+.copy-btn {
+  padding: 7px 14px; border: 1.5px solid var(--gray-b); border-radius: 6px;
+  background: none; cursor: pointer; font-size: 12px; font-family: inherit;
+  color: var(--gray-d); transition: background .1s;
+}
+.copy-btn:hover { background: var(--gray-l); }
+
+/* ── Save btn ── */
+.save-btn {
+  width: 100%; padding: 12px; background: var(--yellow); border: none;
+  border-radius: var(--radius); font-size: 14px; font-weight: 700;
+  font-family: inherit; color: var(--black); cursor: pointer;
+  transition: background .1s; margin-top: 4px;
+}
+.save-btn:hover { background: var(--yellow-d); }
+.save-msg { font-size: 12px; color: var(--green); text-align: center; margin-top: 8px; min-height: 16px; }
+
+/* ── Tabs ── */
+.tabs { display: flex; border-bottom: 1px solid var(--gray-b); margin-bottom: 20px; }
+.tab {
+  padding: 10px 18px; font-size: 13px; cursor: pointer; font-weight: 500;
+  color: var(--gray-m); border-bottom: 2.5px solid transparent; margin-bottom: -1px;
+}
+.tab.active { color: var(--black); border-bottom-color: var(--yellow); }
+
+/* ── Demo notice ── */
+.demo-notice {
+  background: var(--yellow); border-radius: 8px; padding: 10px 16px;
+  font-size: 12px; font-weight: 600; color: var(--black);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="logo-mark">D</div>
+  <div>
+    <span class="logo-text">Flytta Smart</span>
+    <span class="logo-sub">Adminportal</span>
+  </div>
+  <span class="nav-byrå">DinFlytt.nu · Stockholm</span>
+  <span class="nav-badge">Pilot aktiv</span>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">Översikt</div>
+    <div class="nav-item active" onclick="showTab('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showTab('leads')">
+      <span class="icon">📋</span> Leads
+    </div>
+    <div class="sidebar-section">Konfiguration</div>
+    <div class="nav-item" onclick="showTab('priser')">
+      <span class="icon">💰</span> Prismatris
+    </div>
+    <div class="nav-item" onclick="showTab('tillval')">
+      <span class="icon">➕</span> Tilläggstjänster
+    </div>
+    <div class="sidebar-section">Integration</div>
+    <div class="nav-item" onclick="showTab('embed')">
+      <span class="icon">🔌</span> Embedkod
+    </div>
+    <div class="nav-item" onclick="showTab('benchmark')">
+      <span class="icon">📈</span> Marknadsbenchmark
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard">
+      <div class="demo-notice">
+        ⚡ Demo — Flytta Smart × DinFlytt.nu · Data är simulerad för presentation
+      </div>
+
+      <div class="page-title">Välkommen, DinFlytt</div>
+      <div class="page-sub">Senaste 30 dagarna · Pilot vecka 1</div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Leads totalt</div>
+          <div class="stat-value">47</div>
+          <div class="stat-sub stat-up">↑ 12 vs föreg. period</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Konverterade</div>
+          <div class="stat-value">31</div>
+          <div class="stat-sub stat-up">66% konvertering</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Snitt RUT-pris</div>
+          <div class="stat-value">4 250<span style="font-size:14px;color:var(--gray-m)"> kr</span></div>
+          <div class="stat-sub">per bokning</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Kostnad per lead</div>
+          <div class="stat-value stat-up">0<span style="font-size:14px"> kr</span></div>
+          <div class="stat-sub">under piloten</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Leads per vecka</div>
+              <div class="card-sub">Senaste 7 veckorna</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="bar-chart" id="bar-chart"></div>
+            <div style="font-size:11px;color:var(--gray-m);text-align:center">Antal leads per vecka</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Senaste leads</div>
+              <div class="card-sub">De 5 senaste förfrågningarna</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="lead-table">
+              <thead><tr>
+                <th style="padding-left:18px">Namn</th>
+                <th>Storlek</th>
+                <th>Pris (RUT)</th>
+                <th style="padding-right:18px">Status</th>
+              </tr></thead>
+              <tbody id="recent-leads"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="tab-leads" style="display:none">
+      <div class="page-title">Alla leads</div>
+      <div class="page-sub">47 leads totalt · Senaste 30 dagarna</div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="lead-table">
+            <thead><tr>
+              <th style="padding-left:18px">Namn</th>
+              <th>Från-adress</th>
+              <th>Storlek</th>
+              <th>Datum</th>
+              <th>Pris (RUT)</th>
+              <th style="padding-right:18px">Status</th>
+            </tr></thead>
+            <tbody id="all-leads"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRISMATRIS -->
+    <div id="tab-priser" style="display:none">
+      <div class="page-title">Prismatris</div>
+      <div class="page-sub">Grundpriser som visas i widgeten. Uppdateras direkt när du sparar.</div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Grundpris per bostadsstorlek</div></div>
+        <div class="card-body">
+          <table class="price-table">
+            <thead><tr><th style="width:55%">Storlek</th><th>Grundpris (inkl. moms + RUT)</th></tr></thead>
+            <tbody id="price-matrix-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <button class="save-btn" onclick="savePrices()">Spara och uppdatera widget</button>
+          <div class="save-msg" id="save-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILLÄGG -->
+    <div id="tab-tillval" style="display:none">
+      <div class="page-title">Tilläggstjänster</div>
+      <div class="page-sub">Tillval som kunden kan lägga till i widgeten.</div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Tilläggspriser</div></div>
+        <div class="card-body">
+          <table class="price-table">
+            <thead><tr><th style="width:55%">Tjänst</th><th>Pris (inkl. moms + RUT)</th></tr></thead>
+            <tbody id="addon-matrix-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <button class="save-btn" onclick="savePrices()">Spara och uppdatera widget</button>
+          <div class="save-msg" id="save-msg2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMBED -->
+    <div id="tab-embed" style="display:none">
+      <div class="page-title">Embedkod</div>
+      <div class="page-sub">Klistra in denna rad på er hemsida — widgeten aktiveras automatiskt.</div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">WordPress / HTML</div></div>
+        <div class="card-body">
+          <div class="embed-box" id="embed-code">&lt;script src="https://andreasfeiring-lab.github.io/dinflytt-demo/widget.js" data-id="dinflytt-001" data-gmaps-key="YOUR_API_KEY"&gt;&lt;/script&gt;</div>
+          <button class="copy-btn" onclick="copyEmbed()">Kopiera kod</button>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-b)">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px">Så installerar du i WordPress</div>
+            <div style="font-size:13px;color:var(--gray-d);line-height:1.8">
+              1. Logga in i WordPress-admin<br>
+              2. Gå till den sida där ni vill ha widgeten<br>
+              3. Lägg till ett "Custom HTML"-block<br>
+              4. Klistra in koden ovan<br>
+              5. Publicera sidan — widgeten är live
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENCHMARK -->
+    <div id="tab-benchmark" style="display:none">
+      <div class="page-title">Marknadsbenchmark</div>
+      <div class="page-sub">Dina priser jämfört med snittet i Stockholm. Uppdateras varje vecka.</div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Prisjämförelse per storlek</div>
+            <div class="card-sub">Anonymiserade data från nätverket</div>
+          </div>
+        </div>
+        <div class="card-body" id="bench-cards"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const SIZES = [
+  { label: '1 rum', sub: '~30 kvm',   price: 2999 },
+  { label: '2 rum', sub: '~55 kvm',   price: 4499 },
+  { label: '3 rum', sub: '~75 kvm',   price: 5999 },
+  { label: '4 rum', sub: '~100 kvm',  price: 7499 },
+  { label: '5+ rum', sub: '~130+ kvm', price: 9999 },
+];
+const ADDONS = [
+  { label: 'Packhjälp',     sub: 'Vi packar alla kartonger',         price: 1500 },
+  { label: 'Flyttstädning', sub: 'Inkl. besiktningsgaranti 10 dagar', price: 1999 },
+  { label: 'Magasinering',  sub: 'Upp till 30 dagar',                price: 800  },
+];
+const MARKET = { '1 rum': 2700, '2 rum': 4200, '3 rum': 5600, '4 rum': 7100, '5+ rum': 9400 };
+
+const SAMPLE_LEADS = [
+  { name: 'Anna S.',    from: 'Sveavägen 44',    size: '2 rum', date: '2026-04-14', price: 4250, status: 'done' },
+  { name: 'Erik L.',    from: 'Hornsgatan 12',   size: '3 rum', date: '2026-04-13', price: 5750, status: 'done' },
+  { name: 'Maria K.',   from: 'Odengatan 8',     size: '1 rum', date: '2026-04-12', price: 2850, status: 'new'  },
+  { name: 'Johan B.',   from: 'Ringvägen 55',    size: '4 rum', date: '2026-04-11', price: 7100, status: 'done' },
+  { name: 'Sara T.',    from: 'Vasagatan 1',     size: '2 rum', date: '2026-04-10', price: 4250, status: 'miss' },
+  { name: 'Peter H.',   from: 'Folkungagatan 3', size: '3 rum', date: '2026-04-09', price: 5999, status: 'done' },
+  { name: 'Lisa M.',    from: 'Kungsgatan 22',   size: '1 rum', date: '2026-04-08', price: 2999, status: 'new'  },
+  { name: 'Anders W.',  from: 'Götgatan 7',      size: '5+ rum', date: '2026-04-07', price: 9500, status: 'done'},
+];
+
+const STATUS_LABEL = { new: 'Ny', done: 'Bokad', miss: 'Ej nådd' };
+const STATUS_CLASS = { new: 'status-new', done: 'status-done', miss: 'status-miss' };
+
+const kr = n => Math.round(n).toLocaleString('sv-SE') + ' kr';
+
+// ── Bar chart ─────────────────────────────────────────────────────────────────
+const barData = [4, 6, 7, 8, 9, 6, 7];
+const barLabels = ['v.10','v.11','v.12','v.13','v.14','v.15','v.16'];
+const maxBar = Math.max(...barData);
+
+function buildBars() {
+  const el = document.getElementById('bar-chart');
+  if (!el) return;
+  el.innerHTML = barData.map((v, i) => `
+    <div class="bar-wrap">
+      <div style="font-size:10px;color:var(--gray-m)">${v}</div>
+      <div class="bar" style="height:${Math.round((v/maxBar)*60)}px"></div>
+      <div class="bar-label">${barLabels[i]}</div>
+    </div>`).join('');
+}
+
+// ── Recent leads ──────────────────────────────────────────────────────────────
+function buildRecentLeads() {
+  const el = document.getElementById('recent-leads');
+  if (!el) return;
+  el.innerHTML = SAMPLE_LEADS.slice(0, 5).map(l => `
+    <tr>
+      <td style="padding-left:18px;font-weight:500">${l.name}</td>
+      <td>${l.size}</td>
+      <td style="font-weight:600">${kr(l.price)}</td>
+      <td style="padding-right:18px">
+        <span class="status-pill ${STATUS_CLASS[l.status]}">${STATUS_LABEL[l.status]}</span>
+      </td>
+    </tr>`).join('');
+}
+
+function buildAllLeads() {
+  const el = document.getElementById('all-leads');
+  if (!el) return;
+  el.innerHTML = SAMPLE_LEADS.map(l => `
+    <tr>
+      <td style="padding-left:18px;font-weight:500">${l.name}</td>
+      <td style="color:var(--gray-m)">${l.from}</td>
+      <td>${l.size}</td>
+      <td style="color:var(--gray-m)">${l.date}</td>
+      <td style="font-weight:600">${kr(l.price)}</td>
+      <td style="padding-right:18px">
+        <span class="status-pill ${STATUS_CLASS[l.status]}">${STATUS_LABEL[l.status]}</span>
+      </td>
+    </tr>`).join('');
+}
+
+// ── Price matrix ──────────────────────────────────────────────────────────────
+function buildPriceMatrix() {
+  const el = document.getElementById('price-matrix-body');
+  if (!el) return;
+  el.innerHTML = SIZES.map(s => `
+    <tr>
+      <td><div class="row-label">${s.label}</div><div class="row-sub">${s.sub}</div></td>
+      <td>
+        <input type="number" value="${s.price}" step="100"
+          onchange="SIZES.find(x=>x.label==='${s.label}').price=+this.value; buildBenchmark()">
+      </td>
+    </tr>`).join('');
+}
+
+function buildAddonMatrix() {
+  const el = document.getElementById('addon-matrix-body');
+  if (!el) return;
+  el.innerHTML = ADDONS.map(a => `
+    <tr>
+      <td><div class="row-label">${a.label}</div><div class="row-sub">${a.sub}</div></td>
+      <td><input type="number" value="${a.price}" step="100" onchange="ADDONS.find(x=>x.label==='${a.label}').price=+this.value"></td>
+    </tr>`).join('');
+}
+
+// ── Benchmark ─────────────────────────────────────────────────────────────────
+function buildBenchmark() {
+  const el = document.getElementById('bench-cards');
+  if (!el) return;
+  el.innerHTML = SIZES.slice(0, 4).map(s => {
+    const mine = s.price, avg = MARKET[s.label] || s.price;
+    const diff = mine - avg, pct = Math.round((diff / avg) * 100);
+    const above = diff > 0;
+    return `
+      <div class="bench-card">
+        <div>
+          <div class="bench-label">${s.label} · ${s.sub}</div>
+          <div class="bench-val">${kr(mine)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--gray-m);margin-bottom:4px">Snitt: ${kr(avg)}</div>
+          <span class="bench-badge ${above ? 'above' : 'below'}">${above?'+':''}${pct}% vs snitt</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).style.display = 'block';
+  event.currentTarget.classList.add('active');
+
+  if (name === 'dashboard') { buildBars(); buildRecentLeads(); }
+  if (name === 'leads')     { buildAllLeads(); }
+  if (name === 'priser')    { buildPriceMatrix(); }
+  if (name === 'tillval')   { buildAddonMatrix(); }
+  if (name === 'benchmark') { buildBenchmark(); }
+}
+
+function savePrices() {
+  ['save-msg','save-msg2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = 'Sparat! Widget uppdateras inom 30 sekunder.'; setTimeout(() => el.textContent = '', 3000); }
+  });
+  buildBenchmark();
+}
+
+function copyEmbed() {
+  const code = document.getElementById('embed-code').textContent;
+  navigator.clipboard?.writeText(code).then(() => alert('Kopierat!'));
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildBars();
+buildRecentLeads();
+</script>
+</body>
+</html>
